@@ -293,8 +293,71 @@ def _claim(addr: address, ve: address, _last_token_time: uint256) -> uint256:
     return to_distribute
 
 @view
+@internal
+def _claimable(addr: address, ve: address, _last_token_time: uint256) -> uint256:
+    # Minimal user_epoch is 0 (if user had no point)
+    user_epoch: uint256 = 0
+    to_distribute: uint256 = 0
+
+    max_user_epoch: uint256 = VotingEscrow(ve).user_point_epoch(addr)
+    _start_time: uint256 = self.start_time
+
+    if max_user_epoch == 0:
+        # No lock = no fees
+        return 0
+
+    week_cursor: uint256 = self.time_cursor_of[addr]
+    if week_cursor == 0:
+        # Need to do the initial binary search
+        user_epoch = self._find_timestamp_user_epoch(ve, addr, _start_time, max_user_epoch)
+    else:
+        user_epoch = self.user_epoch_of[addr]
+
+    if user_epoch == 0:
+        user_epoch = 1
+
+    user_point: Point = VotingEscrow(ve).user_point_history(addr, user_epoch)
+
+    if week_cursor == 0:
+        week_cursor = (user_point.ts + WEEK - 1) / WEEK * WEEK
+
+    if week_cursor >= _last_token_time:
+        return 0
+
+    if week_cursor < _start_time:
+        week_cursor = _start_time
+    old_user_point: Point = empty(Point)
+
+    # Iterate over weeks
+    for i in range(50):
+        if week_cursor >= _last_token_time:
+            break
+
+        if week_cursor >= user_point.ts and user_epoch <= max_user_epoch:
+            user_epoch += 1
+            old_user_point = user_point
+            if user_epoch > max_user_epoch:
+                user_point = empty(Point)
+            else:
+                user_point = VotingEscrow(ve).user_point_history(addr, user_epoch)
+
+        else:
+            # Calc
+            # + i * 2 is for rounding errors
+            dt: int128 = convert(week_cursor - old_user_point.ts, int128)
+            balance_of: uint256 = convert(max(old_user_point.bias - dt * old_user_point.slope, 0), uint256)
+            if balance_of == 0 and user_epoch > max_user_epoch:
+                break
+            if balance_of > 0:
+                to_distribute += balance_of * self.tokens_per_week[week_cursor] / self.ve_supply[week_cursor]
+
+            week_cursor += WEEK
+
+    return to_distribute
+
+@view
 @external
-def claim(_addr: address = msg.sender) -> uint256:
+def claimable(_addr: address = msg.sender) -> uint256:
     """
     @notice See claimable fees for `_addr`
     @dev Each call to claim looks at a maximum of 50 user veCRV points.
@@ -305,12 +368,10 @@ def claim(_addr: address = msg.sender) -> uint256:
     @param _addr Address to claim fees for
     @return uint256 Amount of fees claimed in the call
     """
-    assert not self.is_killed
-
     last_token_time: uint256 = self.last_token_time
     last_token_time = last_token_time / WEEK * WEEK
 
-    amount: uint256 = self._claim(_addr, self.voting_escrow, last_token_time)
+    amount: uint256 = self._claimable(_addr, self.voting_escrow, last_token_time)
     return amount
 
 @external
