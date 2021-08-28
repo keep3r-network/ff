@@ -15,7 +15,7 @@ The first available options can be minted via yearn.fi/lend
 
 All forex options can be minted via any of the accepted collateral on yearn.fi
 
-For up to date collateral factors, you can visit the Fixed Forex [documentation](docs.fixedforex.fi)
+For up to date collateral factors, you can visit the Fixed Forex [documentation](https://docs.fixedforex.fi/)
 
 Each forex pair will target 2 liquidity pools;
 ib*/* (curve.fi)
