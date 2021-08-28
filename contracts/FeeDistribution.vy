@@ -368,11 +368,8 @@ def claimable(_addr: address = msg.sender) -> uint256:
     @param _addr Address to claim fees for
     @return uint256 Amount of fees claimed in the call
     """
-    last_token_time: uint256 = self.last_token_time
-    last_token_time = last_token_time / WEEK * WEEK
-
-    amount: uint256 = self._claimable(_addr, self.voting_escrow, last_token_time)
-    return amount
+    last_token_time: uint256 = self.last_token_time / WEEK * WEEK
+    return self._claimable(_addr, self.voting_escrow, last_token_time)
 
 @external
 @nonreentrant('lock')
