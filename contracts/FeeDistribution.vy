@@ -292,6 +292,26 @@ def _claim(addr: address, ve: address, _last_token_time: uint256) -> uint256:
 
     return to_distribute
 
+@view
+@external
+def claim(_addr: address = msg.sender) -> uint256:
+    """
+    @notice See claimable fees for `_addr`
+    @dev Each call to claim looks at a maximum of 50 user veCRV points.
+         For accounts with many veCRV related actions, this function
+         may need to be called more than once to claim all available
+         fees. In the `Claimed` event that fires, if `claim_epoch` is
+         less than `max_epoch`, the account may claim again.
+    @param _addr Address to claim fees for
+    @return uint256 Amount of fees claimed in the call
+    """
+    assert not self.is_killed
+
+    last_token_time: uint256 = self.last_token_time
+    last_token_time = last_token_time / WEEK * WEEK
+
+    amount: uint256 = self._claim(_addr, self.voting_escrow, last_token_time)
+    return amount
 
 @external
 @nonreentrant('lock')
