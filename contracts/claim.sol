@@ -10,9 +10,9 @@ interface erc20 {
     function approve(address spender, uint amount) external returns (bool);
 }
 
-contract swap {
-    ve constant veIBFF = ve(0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2);
-    ve constant veKP3R = ve(0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2);
+contract veclaim {
+    ve constant veIBFF = ve(0x4D0518C9136025903751209dDDdf6C67067357b1);
+    ve constant veKP3R = ve(0x0);
     address constant kp3r = 0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44;
     uint immutable public snapshot;
 
