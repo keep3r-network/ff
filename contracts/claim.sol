@@ -1,7 +1,3 @@
-/**
- *Submitted for verification at Etherscan.io on 2021-08-31
-*/
-
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
@@ -19,6 +15,7 @@ interface ve {
     function totalSupply() external view returns (uint);
     function user_point_epoch(address) external view returns (uint);
     function user_point_history(address, uint) external view returns (Point memory);
+    function locked__end(address) external view returns (uint);
 }
 
 interface erc20 {
@@ -29,14 +26,14 @@ interface erc20 {
 
 contract veclaim {
     ve constant _veibff = ve(0x4D0518C9136025903751209dDDdf6C67067357b1);
-    ve constant _vekp3r = ve(0x2FC52C61fB0C03489649311989CE2689D93dC1a2);
+    ve constant _vkp3r = ve(0x2FC52C61fB0C03489649311989CE2689D93dC1a2);
     address constant _kp3r = 0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44;
     uint constant _exchange_rate = 13;
     uint immutable public t;
     uint immutable public totalSupply;
-    address immutable owner;
+    address constant owner = 0x0D5Dc686d0a2ABBfDaFDFb4D0533E886517d4E83;
     uint public claimed;
-    uint public required;
+    uint immutable public required;
 
     mapping(address => bool) public has_claimed;
 
@@ -44,11 +41,10 @@ contract veclaim {
 
     constructor() {
         t = block.timestamp;
-        owner = msg.sender;
         uint _totalSupply = _veibff.totalSupply();
         totalSupply = _totalSupply;
         required = _totalSupply * _exchange_rate;
-        _safeApprove(_kp3r, address(_vekp3r), type(uint).max);
+        _safeApprove(_kp3r, address(_vkp3r), type(uint).max);
     }
 
     function deficit() external view returns (uint) {
@@ -95,11 +91,12 @@ contract veclaim {
 
     function _claim(address claimant) internal returns (bool) {
         require(!has_claimed[claimant]);
+        require(ve(_vkp3r).locked__end(claimant) >= ve(_veibff).locked__end(claimant));
         has_claimed[claimant] = true;
 
         uint _amount = ve_balance_at(claimant, t) * _exchange_rate;
         claimed += _amount;
-        _vekp3r.deposit_for(claimant, _amount);
+        _vkp3r.deposit_for(claimant, _amount);
         emit Claim(claimant, _amount);
         return true;
     }
@@ -114,5 +111,15 @@ contract veclaim {
         (bool success, bytes memory data) =
             token.call(abi.encodeWithSelector(erc20.transfer.selector, to, value));
         require(success && (data.length == 0 || abi.decode(data, (bool))));
+    }
+
+    address public constant ETH_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+    function dust(address _token, uint256 _amount) external {
+        require(msg.sender == owner);
+        if (_token == ETH_ADDRESS) {
+          payable(owner).transfer(_amount);
+        } else {
+          _safeTransfer(_token, owner, _amount);
+        }
     }
 }
