@@ -10,8 +10,8 @@ import 'hardhat-gas-reporter';
 import 'hardhat-deploy';
 import 'solidity-coverage';
 import { HardhatUserConfig, MultiSolcUserConfig, NetworksUserConfig } from 'hardhat/types';
+import * as env from './utils/env';
 import 'tsconfig-paths/register';
-import { getNodeUrl, accounts } from './utils/network';
 
 const networks: NetworksUserConfig = process.env.TEST
   ? {}
@@ -19,28 +19,16 @@ const networks: NetworksUserConfig = process.env.TEST
       hardhat: {
         forking: {
           enabled: process.env.FORK ? true : false,
-          url: getNodeUrl('mainnet'),
+          url: env.getNodeUrl('ethereum'),
         },
       },
-      localhost: {
-        url: getNodeUrl('localhost'),
-        accounts: accounts('localhost'),
-      },
       kovan: {
-        url: getNodeUrl('kovan'),
-        accounts: accounts('kovan'),
+        url: env.getNodeUrl('kovan'),
+        accounts: env.getAccounts('kovan'),
       },
-      rinkeby: {
-        url: getNodeUrl('rinkeby'),
-        accounts: accounts('rinkeby'),
-      },
-      ropsten: {
-        url: getNodeUrl('ropsten'),
-        accounts: accounts('ropsten'),
-      },
-      mainnet: {
-        url: getNodeUrl('mainnet'),
-        accounts: accounts('mainnet'),
+      ethereum: {
+        url: env.getNodeUrl('ethereum'),
+        accounts: env.getAccounts('ethereum'),
       },
     };
 
