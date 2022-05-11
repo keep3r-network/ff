@@ -1,0 +1,37 @@
+# General
+.prettierignore
+.solhintignore
+.husky
+.gitignore
+.gitattributes
+.env.example
+.env
+workspace.code-workspace
+.DS_STORE
+codechecks.yml
+
+# Hardhat
+coverage
+coverage.json
+artifacts
+cache
+typechained
+deployments
+
+# Vyper
+contracts/*.vy
+
+# JS
+node_modules
+package-lock.json
+yarn.lock
+
+# Solidity
+contracts/mock
+contracts/legacy
+
+# Deployments
+deployments
+
+# Audits
+audits
