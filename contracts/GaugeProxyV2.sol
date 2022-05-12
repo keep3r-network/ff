@@ -1,40 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-interface erc20 {
-  function totalSupply() external view returns (uint256);
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import './interfaces/IKeep3rV1Proxy.sol';
+import './interfaces/IvKP3R.sol';
+import './interfaces/IrKP3R.sol';
+import './interfaces/IGauge.sol';
 
-  function transfer(address recipient, uint256 amount) external returns (bool);
-
-  function decimals() external view returns (uint8);
-
-  function balanceOf(address) external view returns (uint256);
-
-  function transferFrom(
-    address sender,
-    address recipient,
-    uint256 amount
-  ) external returns (bool);
-
-  function approve(address spender, uint256 value) external returns (bool);
-}
-
-interface delegate {
-  function get_adjusted_ve_balance(address, address) external view returns (uint256);
-}
-
-interface Gauge {
-  function deposit_reward_token(address, uint256) external;
-}
-
-/// @dev code extracted from etherscan: https://etherscan.io/address/0x81a8CAb6bb568fC94bCa70C9AdbFCF05592dEd7b#code
 contract GaugeProxyV2 {
   address constant _rkp3r = 0xEdB67Ee1B171c4eC66E6c10EC43EDBbA20FaE8e9;
   address constant _vkp3r = 0x2FC52C61fB0C03489649311989CE2689D93dC1a2;
+  address constant _kp3rV1 = 0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44;
+  address constant _kp3rV1Proxy = 0x976b01c02c636Dd5901444B941442FD70b86dcd5;
   address constant ZERO_ADDRESS = 0x0000000000000000000000000000000000000000;
 
   uint256 public totalWeight;
 
+  address public keeper;
   address public gov;
   address public nextgov;
   uint256 public commitgov;
@@ -54,11 +36,21 @@ contract GaugeProxyV2 {
 
   constructor() {
     gov = msg.sender;
+    _safeApprove(_kp3rV1, _rkp3r, type(uint256).max);
   }
 
   modifier g() {
     require(msg.sender == gov);
     _;
+  }
+
+  modifier k() {
+    require(msg.sender == keeper);
+    _;
+  }
+
+  function setKeeper(address _keeper) external g {
+    keeper = _keeper;
   }
 
   function setGov(address _gov) external g {
@@ -99,7 +91,7 @@ contract GaugeProxyV2 {
     uint256[] memory _weights = new uint256[](_tokenCnt);
 
     uint256 _prevUsedWeight = usedWeights[_owner];
-    uint256 _weight = delegate(_vkp3r).get_adjusted_ve_balance(_owner, ZERO_ADDRESS);
+    uint256 _weight = IvKP3R(_vkp3r).get_adjusted_ve_balance(_owner, ZERO_ADDRESS);
 
     for (uint256 i = 0; i < _tokenCnt; i++) {
       uint256 _prevWeight = votes[_owner][_tokenVote[i]];
@@ -117,7 +109,7 @@ contract GaugeProxyV2 {
     // _weights[i] = percentage * 100
     _reset(_owner);
     uint256 _tokenCnt = _tokenVote.length;
-    uint256 _weight = delegate(_vkp3r).get_adjusted_ve_balance(_owner, ZERO_ADDRESS);
+    uint256 _weight = IvKP3R(_vkp3r).get_adjusted_ve_balance(_owner, ZERO_ADDRESS);
     uint256 _totalVoteWeight = 0;
     uint256 _usedWeight = 0;
 
@@ -167,8 +159,18 @@ contract GaugeProxyV2 {
     return _tokens.length;
   }
 
-  function distribute() external g {
-    uint256 _balance = erc20(_rkp3r).balanceOf(address(this));
+  function forceDistribute() external g {
+    _distribute();
+  }
+
+  function distribute() external k {
+    _distribute();
+  }
+
+  function _distribute() internal {
+    uint256 _balance = IKeep3rV1Proxy(_kp3rV1Proxy).draw();
+    IrKP3R(_rkp3r).deposit(_balance);
+
     if (_balance > 0 && totalWeight > 0) {
       uint256 _totalWeight = totalWeight;
       for (uint256 i = 0; i < _tokens.length; i++) {
@@ -181,7 +183,7 @@ contract GaugeProxyV2 {
           uint256 _reward = (_balance * weights[_tokens[x]]) / _totalWeight;
           if (_reward > 0) {
             address _gauge = gauges[_tokens[x]];
-            Gauge(_gauge).deposit_reward_token(_rkp3r, _reward);
+            IGauge(_gauge).deposit_reward_token(_rkp3r, _reward);
           }
         }
       }
@@ -193,7 +195,7 @@ contract GaugeProxyV2 {
     address spender,
     uint256 value
   ) internal {
-    (bool success, bytes memory data) = token.call(abi.encodeWithSelector(erc20.approve.selector, spender, value));
+    (bool success, bytes memory data) = token.call(abi.encodeWithSelector(IERC20.approve.selector, spender, value));
     require(success && (data.length == 0 || abi.decode(data, (bool))));
   }
 }

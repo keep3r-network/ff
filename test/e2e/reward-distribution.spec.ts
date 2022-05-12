@@ -51,9 +51,9 @@ describe('GaugeProxyV2 @skip-on-coverage', () => {
     // deploys local implementation of gaugeProxy
     const gaugeProxyFactory = (await ethers.getContractFactory('GaugeProxyV2')) as GaugeProxyV2__factory;
     gaugeProxy = await gaugeProxyFactory.connect(governance).deploy();
-    await gaugeProxy.connect(governance).addGauge(curvePool.address, gauge.address, {
-      gasLimit: 1e6,
-    });
+    await gaugeProxy.connect(governance).addGauge(curvePool.address, gauge.address, { gasLimit: 1e6 });
+
+    await gaugeProxy.setKeeper(stranger.address);
 
     snapshotId = await evm.snapshot.take();
   });
@@ -80,16 +80,13 @@ describe('GaugeProxyV2 @skip-on-coverage', () => {
       await gaugeProxy.connect(stranger).vote([curvePool.address], [1]);
 
       // add rKP3R rewards
-      await keep3rProxy.connect(governance)['mint(address,uint256)'](governance._address, REWARD_AMOUNT);
-      await keep3rV1.connect(governance).approve(rKP3R.address, REWARD_AMOUNT);
-      await rKP3R.connect(governance).deposit(REWARD_AMOUNT);
-      await rKP3R.connect(governance).transfer(gaugeProxy.address, REWARD_AMOUNT);
+      await keep3rProxy.connect(governance).addRecipient(gaugeProxy.address, REWARD_AMOUNT);
 
       // distribute rKP3R rewards
       await gauge.connect(curveAdmin).set_reward_distributor(rKP3R.address, gaugeProxy.address);
 
       const previousGaugeBalance = await rKP3R.balanceOf(gauge.address);
-      await gaugeProxy.connect(governance).distribute();
+      await gaugeProxy.connect(stranger).distribute();
 
       expect(await rKP3R.balanceOf(gauge.address)).to.be.gt(previousGaugeBalance);
     });
