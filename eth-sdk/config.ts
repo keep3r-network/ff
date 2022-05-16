@@ -3,6 +3,7 @@ import { defineConfig } from '@dethcrypto/eth-sdk';
 export default defineConfig({
   contracts: {
     mainnet: {
+      keep3r: '0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC',
       keep3rV1: '0x1ceb5cb57c4d4e2b2433641b95dd330a33185a44',
       keep3rProxy: '0x976b01c02c636Dd5901444B941442FD70b86dcd5',
       rKp3r: '0xEdB67Ee1B171c4eC66E6c10EC43EDBbA20FaE8e9',

@@ -28,9 +28,9 @@ interface IKeep3rV1Proxy {
   error OnlyMinter();
 
   // Methods
-  function addRecipient(address recipient, uint256 amount) external;
+  function addRecipient(address _recipient, uint256 _amount) external;
 
-  function removeRecipient(address recipient) external;
+  function removeRecipient(address _recipient) external;
 
   function draw() external returns (uint256 _amount);
 

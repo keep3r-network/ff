@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.12;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import './interfaces/IKeep3rV1Proxy.sol';
-import './interfaces/IvKP3R.sol';
-import './interfaces/IrKP3R.sol';
-import './interfaces/IGauge.sol';
+import './interfaces/external/IKeep3rV1Proxy.sol';
+import './interfaces/external/IvKP3R.sol';
+import './interfaces/external/IrKP3R.sol';
+import './interfaces/external/IGauge.sol';
+import './interfaces/IGaugeProxy.sol';
 
-contract GaugeProxyV2 {
+contract GaugeProxyV2 is IGaugeProxy {
   address constant _rkp3r = 0xEdB67Ee1B171c4eC66E6c10EC43EDBbA20FaE8e9;
   address constant _vkp3r = 0x2FC52C61fB0C03489649311989CE2689D93dC1a2;
   address constant _kp3rV1 = 0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44;

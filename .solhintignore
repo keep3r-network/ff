@@ -1,3 +1,4 @@
 node_modules
 contracts/mock
 contracts/legacy
+contracts/for-test
