@@ -2,6 +2,7 @@ node_modules
 contracts/mock
 contracts/for-test
 
+contracts/GaugeProxy.sol
 contracts/claim.sol
 contracts/distribution.sol
 contracts/faucet.sol

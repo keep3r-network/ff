@@ -29,6 +29,7 @@ yarn.lock
 # Solidity
 contracts/mock
 contracts/*.vy
+contracts/GaugeProxy.sol
 contracts/claim.sol
 contracts/distribution.sol
 contracts/faucet.sol
