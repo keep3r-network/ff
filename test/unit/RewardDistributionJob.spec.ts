@@ -39,12 +39,13 @@ describe('RewardDistributionJob', () => {
       keep3r.worked.reset();
       keep3r.isKeeper.reset();
       gaugeProxy.distribute.reset();
+
       keep3r.isKeeper.returns(true);
     });
 
     it('should revert when paused', async () => {
-      job.setVariable('paused', true);
-      await expect(job.work()).to.be.revertedWith('Paused');
+      await job.setVariable('paused', true);
+      await expect(job.callStatic.work()).to.be.revertedWith('Paused');
     });
 
     it('should validate keeper', async () => {

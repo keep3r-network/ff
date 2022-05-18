@@ -15,28 +15,41 @@ contract GaugeProxyV2 is IGaugeProxy {
   address constant _kp3rV1Proxy = 0x976b01c02c636Dd5901444B941442FD70b86dcd5;
   address constant ZERO_ADDRESS = 0x0000000000000000000000000000000000000000;
 
+  /// @inheritdoc IGaugeProxy
   uint256 public totalWeight;
 
+  /// @inheritdoc IGaugeProxy
   address public keeper;
+  /// @inheritdoc IGaugeProxy
   address public gov;
+  /// @inheritdoc IGaugeProxy
   address public nextgov;
+  /// @inheritdoc IGaugeProxy
   uint256 public commitgov;
+  /// @inheritdoc IGaugeProxy
   uint256 public constant delay = 1 days;
 
   address[] internal _tokens;
+  /// @inheritdoc IGaugeProxy
   mapping(address => address) public gauges; // token => gauge
+  /// @inheritdoc IGaugeProxy
   mapping(address => uint256) public weights; // token => weight
+  /// @inheritdoc IGaugeProxy
   mapping(address => mapping(address => uint256)) public votes; // msg.sender => votes
+  /// @inheritdoc IGaugeProxy
   mapping(address => address[]) public tokenVote; // msg.sender => token
+  /// @inheritdoc IGaugeProxy
   mapping(address => uint256) public usedWeights; // msg.sender => total voting weight of user
+  /// @inheritdoc IGaugeProxy
   mapping(address => bool) public enabled;
 
+  /// @inheritdoc IGaugeProxy
   function tokens() external view returns (address[] memory) {
     return _tokens;
   }
 
-  constructor() {
-    gov = msg.sender;
+  constructor(address _gov) {
+    gov = _gov;
     _safeApprove(_kp3rV1, _rkp3r, type(uint256).max);
   }
 
@@ -50,20 +63,24 @@ contract GaugeProxyV2 is IGaugeProxy {
     _;
   }
 
+  /// @inheritdoc IGaugeProxy
   function setKeeper(address _keeper) external g {
     keeper = _keeper;
   }
 
+  /// @inheritdoc IGaugeProxy
   function setGov(address _gov) external g {
     nextgov = _gov;
     commitgov = block.timestamp + delay;
   }
 
+  /// @inheritdoc IGaugeProxy
   function acceptGov() external {
     require(msg.sender == nextgov && commitgov < block.timestamp);
     gov = nextgov;
   }
 
+  /// @inheritdoc IGaugeProxy
   function reset() external {
     _reset(msg.sender);
   }
@@ -86,6 +103,7 @@ contract GaugeProxyV2 is IGaugeProxy {
     delete tokenVote[_owner];
   }
 
+  /// @inheritdoc IGaugeProxy
   function poke(address _owner) public {
     address[] memory _tokenVote = tokenVote[_owner];
     uint256 _tokenCnt = _tokenVote.length;
@@ -135,11 +153,13 @@ contract GaugeProxyV2 is IGaugeProxy {
     usedWeights[_owner] = _usedWeight;
   }
 
+  /// @inheritdoc IGaugeProxy
   function vote(address[] calldata _tokenVote, uint256[] calldata _weights) external {
     require(_tokenVote.length == _weights.length);
     _vote(msg.sender, _tokenVote, _weights);
   }
 
+  /// @inheritdoc IGaugeProxy
   function addGauge(address _token, address _gauge) external g {
     require(gauges[_token] == address(0x0), 'exists');
     _safeApprove(_rkp3r, _gauge, type(uint256).max);
@@ -148,22 +168,27 @@ contract GaugeProxyV2 is IGaugeProxy {
     _tokens.push(_token);
   }
 
+  /// @inheritdoc IGaugeProxy
   function disable(address _token) external g {
     enabled[_token] = false;
   }
 
+  /// @inheritdoc IGaugeProxy
   function enable(address _token) external g {
     enabled[_token] = true;
   }
 
+  /// @inheritdoc IGaugeProxy
   function length() external view returns (uint256) {
     return _tokens.length;
   }
 
+  /// @inheritdoc IGaugeProxy
   function forceDistribute() external g {
     _distribute();
   }
 
+  /// @inheritdoc IGaugeProxy
   function distribute() external k {
     _distribute();
   }

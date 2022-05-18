@@ -26,7 +26,7 @@ describe('GaugeProxyV2 @skip-on-coverage', () => {
   let job: RewardDistributionJob;
 
   const KEEP3R_GOVERNANCE = '0x0d5dc686d0a2abbfdafdfb4d0533e886517d4e83';
-  const CURVE_ADMIN = '0x40907540d8a6c65c637785e8f8b742ae6b0b9968';
+  const MAX_UINT = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
 
   before(async () => {
     [deployer, keeper] = await ethers.getSigners();
@@ -53,13 +53,13 @@ describe('GaugeProxyV2 @skip-on-coverage', () => {
 
     // deploys local implementation of gaugeProxy
     const gaugeProxyFactory = (await ethers.getContractFactory('GaugeProxyV2')) as GaugeProxyV2__factory;
-    gaugeProxy = await gaugeProxyFactory.connect(governance).deploy();
+    gaugeProxy = await gaugeProxyFactory.deploy(governance._address);
     await gaugeProxy.connect(governance).addGauge(curvePool.address, gauge.address, { gasLimit: 1e6 });
 
     const jobFactory = (await ethers.getContractFactory('RewardDistributionJob')) as RewardDistributionJob__factory;
     job = await jobFactory.deploy(gaugeProxy.address, governance._address);
 
-    await gaugeProxy.setKeeper(job.address);
+    await gaugeProxy.connect(governance).setKeeper(job.address);
 
     await keep3r.connect(governance).addJob(job.address);
     await keep3r.connect(keeper).bond(keep3rV1.address, 0);
@@ -77,13 +77,15 @@ describe('GaugeProxyV2 @skip-on-coverage', () => {
   describe('reward distribution', () => {
     it('should be deployed', async () => {
       expect(await gaugeProxy.deployed());
+      expect(await gaugeProxy.gov()).to.eq(governance._address);
+      expect(await keep3rV1.allowance(gaugeProxy.address, rKP3R.address)).to.eq(MAX_UINT);
     });
 
     it('should distribute rewards to gauges', async () => {
       const VOTE_WEIGHT = bn.toUnit(1);
       const REWARD_AMOUNT = bn.toUnit(100);
 
-      // // add votes
+      // add votes
       await keep3rProxy.connect(governance)['mint(address,uint256)'](keeper.address, VOTE_WEIGHT);
       await keep3rV1.connect(keeper).approve(vKP3R.address, VOTE_WEIGHT);
       const blockTimestamp = (await ethers.provider.getBlock('latest')).timestamp;
