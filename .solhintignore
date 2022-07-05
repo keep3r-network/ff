@@ -1,0 +1,15 @@
+node_modules
+contracts/mock
+contracts/for-test
+
+contracts/GaugeProxy.sol
+contracts/claim.sol
+contracts/distribution.sol
+contracts/faucet.sol
+contracts/FeeDistributionLookup.sol
+contracts/ffregistry.sol
+contracts/FixedForex.sol
+contracts/ibff.sol
+contracts/kp3rv1-5.sol
+contracts/Migrations.sol
+contracts/stabilizer.sol

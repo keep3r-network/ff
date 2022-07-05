@@ -1,0 +1,27 @@
+# General
+node_modules
+.DS_STORE
+
+# Coverage
+coverage.json
+coverage
+
+# Hardhat files
+cache
+artifacts
+typechained
+deployments/hardhat
+deployments/localhost
+
+# Config files
+.env
+
+# Local deployments
+deployments/localhost
+deployments/hardhat
+
+# Not ignore gitkeep
+!/**/.gitkeep
+
+# ETH-SDK
+eth-sdk/abis

@@ -1,0 +1,51 @@
+# General
+.prettierignore
+.solhintignore
+.husky
+.gitignore
+.gitattributes
+.env.example
+.env
+workspace.code-workspace
+.DS_STORE
+codechecks.yml
+
+# Hardhat
+coverage
+coverage.json
+artifacts
+cache
+typechained
+deployments
+
+# Vyper
+contracts/*.vy
+
+# JS
+node_modules
+package-lock.json
+yarn.lock
+
+# Solidity
+contracts/mock
+contracts/*.vy
+contracts/GaugeProxy.sol
+contracts/claim.sol
+contracts/distribution.sol
+contracts/faucet.sol
+contracts/FeeDistributionLookup.sol
+contracts/ffregistry.sol
+contracts/FixedForex.sol
+contracts/ibff.sol
+contracts/kp3rv1-5.sol
+contracts/Migrations.sol
+contracts/stabilizer.sol
+
+# ETH-SDK
+eth-sdk/abis
+
+# Deployments
+deployments
+
+# Audits
+audits

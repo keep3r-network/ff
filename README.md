@@ -6,12 +6,12 @@ Fixed Forex is the collective name for USD, EUR, ZAR, JPY, CNY, AUD, AED, CAD, I
 
 The first available options can be minted via yearn.fi/lend
 
-* ibEUR
-* ibKRW
-* ibJPY
-* ibAUD
-* ibCHF
-* ibGBP
+- ibEUR
+- ibKRW
+- ibJPY
+- ibAUD
+- ibCHF
+- ibGBP
 
 All forex options can be minted via any of the accepted collateral on yearn.fi
 
@@ -19,7 +19,7 @@ For up to date collateral factors, you can visit the Fixed Forex [documentation]
 
 Each forex pair will target 2 liquidity pools;
 ib*/* (curve.fi)
-ib*/stable (uni v3)
+ib\*/stable (uni v3)
 
 For each asset, liquidity providers will have four available yield options;
 
@@ -29,6 +29,7 @@ Provide ib*/* to curve.fi
 Stake in Iron Bank Fixed Forex and earn the native token KP3R (vested, vKP3R)
 
 # vKP3R
+
 The KP3R mechanism is complex, and should be carefully understood before participating.
 
 The system’s true native token is vKP3R, or vested KP3R, vKP3R earns protocol fees, these fees are dynamic based on supply and demand. Currently, these fees are 10.15% of TVL.
