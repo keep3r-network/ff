@@ -1,6 +1,6 @@
 import { getMainnetSdk } from '@dethcrypto/eth-sdk-client';
-import { Keep3rV1, Keep3r, Keep3rProxy, RKp3r, VKp3r, Gauge, CurvePool, CurveOwnerProxy } from '@eth-sdk-types';
-import { GaugeProxyV2, GaugeProxyV2__factory, RewardDistributionJob, RewardDistributionJob__factory } from '@typechained';
+import { Keep3rV1, Keep3r, Keep3rProxy, RKp3r, VKp3r, Gauge, CurvePool, CurveOwnerProxy, IbBurner, IbController } from '@eth-sdk-types';
+import { GaugeProxyV2, GaugeProxyV2__factory, RewardDistributionJob, RewardDistributionJob__factory, IERC20 } from '@typechained';
 import { ethers } from 'hardhat';
 import { evm, wallet, bn } from '@utils';
 import { expect } from 'chai';
@@ -19,21 +19,28 @@ describe('GaugeProxyV2 @skip-on-coverage', () => {
   let rKP3R: RKp3r;
   let vKP3R: VKp3r;
   let gauge: Gauge;
+  let ibEUR: IERC20;
+  let sUSD: IERC20;
   let curvePool: CurvePool;
+  let ibBurner: IbBurner;
+  let ibController: IbController;
   let snapshotId: string;
   let gaugeProxy: GaugeProxyV2;
   let curveOwnerProxy: CurveOwnerProxy;
   let job: RewardDistributionJob;
 
+  const IB_EUR_FEE_DISTRIBUTION = '0xb9d18ab94cf61bb2bcebe6ac8ba8c19ff0cdb0ca';
+  const SYNTHETIX_FEE_ADDRESS = '0xfeefeefeefeefeefeefeefeefeefeefeefeefeef';
   const KEEP3R_GOVERNANCE = '0x0d5dc686d0a2abbfdafdfb4d0533e886517d4e83';
   const MAX_UINT = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+  const TIMEOUT = 600;
 
   before(async () => {
     [deployer, keeper] = await ethers.getSigners();
 
     await evm.reset({
       jsonRpcUrl: getNodeUrl('ethereum'),
-      blockNumber: 14750000,
+      blockNumber: 14877512,
     });
 
     const sdk = getMainnetSdk(deployer);
@@ -45,6 +52,11 @@ describe('GaugeProxyV2 @skip-on-coverage', () => {
     gauge = sdk.gauge;
     curvePool = sdk.curvePool;
     curveOwnerProxy = sdk.curveOwnerProxy;
+    ibBurner = sdk.ibBurner;
+    ibController = sdk.ibController;
+
+    ibEUR = await ethers.getContractAt('IERC20', '0x96e61422b6a9ba0e068b6c5add4ffabc6a4aae27');
+    sUSD = await ethers.getContractAt('IERC20', '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51');
 
     governance = await wallet.impersonate(KEEP3R_GOVERNANCE);
     curveAdmin = await wallet.impersonate(curveOwnerProxy.address); // TODO: impersonate EOA
@@ -57,13 +69,14 @@ describe('GaugeProxyV2 @skip-on-coverage', () => {
     await gaugeProxy.connect(governance).addGauge(curvePool.address, gauge.address, { gasLimit: 1e6 });
 
     const jobFactory = (await ethers.getContractFactory('RewardDistributionJob')) as RewardDistributionJob__factory;
-    job = await jobFactory.deploy(gaugeProxy.address, governance._address);
+    job = await jobFactory.deploy(gaugeProxy.address, ibBurner.address, ibController.address, TIMEOUT, governance._address);
 
     await gaugeProxy.connect(governance).setKeeper(job.address);
 
     await keep3r.connect(governance).addJob(job.address);
+    await keep3r.connect(governance).setBondTime(1);
     await keep3r.connect(keeper).bond(keep3rV1.address, 0);
-    await evm.advanceTimeAndBlock(86400 * 3);
+    await evm.advanceTimeAndBlock(1);
     await keep3r.connect(keeper).activate(keep3rV1.address);
     await keep3r.connect(governance).forceLiquidityCreditsToJob(job.address, bn.toUnit(10));
 
@@ -103,6 +116,26 @@ describe('GaugeProxyV2 @skip-on-coverage', () => {
       await job.connect(keeper).work();
 
       expect(await rKP3R.balanceOf(gauge.address)).to.be.gt(previousGaugeBalance);
+    });
+
+    it('should distribute ibEUR rewards', async () => {
+      let prevEURBalance = await ibEUR.balanceOf(ibBurner.address);
+      await keep3rProxy.connect(governance).addRecipient(gaugeProxy.address, 1);
+      await job.connect(keeper).work();
+      expect(await ibEUR.balanceOf(ibBurner.address)).to.be.gt(prevEURBalance);
+      await expect(job.connect(keeper).work()).to.be.reverted;
+
+      await evm.advanceTimeAndBlock(TIMEOUT);
+      const prevUSDBalance = await sUSD.balanceOf(SYNTHETIX_FEE_ADDRESS);
+      await job.connect(keeper).exchange();
+      expect(await sUSD.balanceOf(SYNTHETIX_FEE_ADDRESS)).to.be.gt(prevUSDBalance);
+      await expect(job.connect(keeper).exchange()).to.be.reverted;
+
+      await evm.advanceTimeAndBlock(TIMEOUT);
+      prevEURBalance = await ibEUR.balanceOf(IB_EUR_FEE_DISTRIBUTION);
+      await job.connect(keeper).distribute();
+      expect(await ibEUR.balanceOf(IB_EUR_FEE_DISTRIBUTION)).to.be.gt(prevEURBalance);
+      await expect(job.connect(keeper).distribute()).to.be.reverted;
     });
   });
 });

@@ -12,4 +12,9 @@ abstract contract Pausable is IPausable, Governable {
     paused = _paused;
     emit PauseSet(_paused);
   }
+
+  modifier notPaused() {
+    if (paused) revert Paused();
+    _;
+  }
 }

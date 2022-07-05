@@ -12,6 +12,8 @@ export default defineConfig({
       curvePool: '0x19b080FE1ffA0553469D20Ca36219F17Fcf03859',
       curveOwnerProxy: '0x2ef1bc1961d3209e5743c91cd3fbfa0d08656bc3',
       gauge: '0x99fb76F75501039089AAC8f20f487bf84E51d76F',
+      ibBurner: '0x4bcd0d9bdc8f28664987b99cc73dc368c7dee1bd',
+      ibController: '0xa511da90c2f4c557456cd84cd003a1f74c202d80',
     },
   },
 });
