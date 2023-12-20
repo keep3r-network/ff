@@ -45,6 +45,6 @@ In ordinary circumstances, Keep3r can discourage additional borrowing of Fixed F
 ### Next Steps
 To prevent similar mistakes in the future, we propose the following actions and additional safeguards are put into place:
 - Iron Bank remove permission of `0x6B419752c453D0B83bc1B465077043347cb3C576` to borrow any further Fixed Forex assets uncollateralized
-- Iron Bank team ensure no future credit agreements are put in place that allow for borrowing of Fixed Forex assets, without Keep3r multisig joint approval. Propose future approval is controlled by Multisig that requires both team sign-off
+- Iron Bank team ensure no future credit agreements are put in place that allow for borrowing of Fixed Forex assets, without Keep3r multisig joint approval. Propose future approval is controlled by Multisig that requires both teams sign-off, Keep3r & Iron Bank
 - Lines of communication between Keep3r and Iron Bank teams are strengthened, with reasonable response times for cross-team communication
 - Iron Bank & Borrowing contract owner `0x98d785185198EF02Db237471f034AC6020E3f55E`will manage repayment of debt plan, in line with the uncollateralized borrowing agreement between both parties. Propose immediate repayment
