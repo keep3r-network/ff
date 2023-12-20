@@ -23,7 +23,7 @@ Fixed Forex assets (ibEUR, ibCHF, ibGBP, ibAUD, ibJPY & ibKRW) are designed to b
 - Any new borrowing against ib_amm and ibAMM was previously ceased by Keep3r Multisig in 23.01.04 at txn `0x21f762bf2218a9195a61df95be30e5c98d3f9839f5272c5cf6fddef105ee39cd`
 
 ## Details of the Issue
-- A third party unknown to Keep3r was permissioned by Iron Bank multisig to borrow Fixed Forex assets on`0x9a97664f3aba3d6de05099b513a854d838c99db` created at txn `0xf9ec48cb178e525ecd60e8f0f407d4572db8581e350d1b765cf3fcaf86b5644a` on 23.04.09
+- A third party (non-Keep3r or Iron Bank) was permissioned by Iron Bank multisig to borrow Fixed Forex assets on`0x9a97664f3aba3d6de05099b513a854d838c99db` created at txn `0xf9ec48cb178e525ecd60e8f0f407d4572db8581e350d1b765cf3fcaf86b5644a` on 23.04.09
 - The third party published a V2 implementation `0x6B419752c453D0B83bc1B465077043347cb3C576` on 23.11.15 at txn `0xda3f3acfc571077842d7ad6350742370c110b2af3d40a3c06de49f19b87c3a73`
 - Both contracts have been farming liquidity pools for Fixed Forex assets through provision of single-sided liquidity. Amassing a total borrowing position of $4,534,742 at date of disclosure
 - Borrowing contract `0x6B419752c453D0B83bc1B465077043347cb3C576`is approx. 98% of liquidity in the entire ibEUR-USDC liquidity pool `0x1570af3df649fc74872c5b8f280a162a3bdd4eb6`
@@ -36,8 +36,7 @@ In ordinary circumstances, Keep3r can discourage additional borrowing of Fixed F
 1. As of 23.12.18 majority of outstanding Fixed Forex assets borrowed are held by two permissioned contracts `0x6B419752c453D0B83bc1B465077043347cb3C576` & `0x8338Aa899fB3168598D871Edc1FE2B4F0Ca6BBEF` accounting for 98% of all ibEUR borrowing. Due to this, a change in the level of ibEUR supply in Iron Bank would have no material impact on peg defense or maintenance of peg balance for ibEUR or any other Fixed Forex assets borrowed (ibAUD, ibJPY).
 2. The Iron Bank team did not inform Keep3r that a third party had been permissioned to borrow Fixed Forex assets uncollateralized
 3. The third party contract had no safeguards in place to ensure stabilization of peg of assets, destabilizing the market value of Fixed Forex assets
-4. The Iron Bank team did not respond to request to comment on permission of contract when request raised on 23.12.18 until 23.12.19 commenting that borrower "is a competent, trusted part who IB had previously worked with and setup a uncollateralized borrow contract as IB has done in the past... the contract is a migration/upgrade of an existing partnership, not a new one.." (sic)
-5. The Iron Bank team also confirmed the following details;
+4. The Iron Bank team also confirmed the following details;
    - The borrowing contract has no check for peg before borrow and LP entry
    - The borrowing contract has no permissions or credit limit to borrow other assets from Iron Bank (i.e. non-Fixed Forex assets)
    - The borrowing contract is backed by the underlying Curve LP tokens. Borrowed principle cannot be removed. Only the farmed/earned CRV/CVX can be removed
@@ -47,4 +46,4 @@ To prevent similar mistakes in the future, we propose the following actions and 
 - Iron Bank remove permission of `0x6B419752c453D0B83bc1B465077043347cb3C576` to borrow any further Fixed Forex assets uncollateralized
 - Iron Bank team ensure no future credit agreements are put in place that allow for borrowing of Fixed Forex assets, without Keep3r multisig joint approval. Propose future approval is controlled by Multisig that requires both teams sign-off, Keep3r & Iron Bank
 - Lines of communication between Keep3r and Iron Bank teams are strengthened, with reasonable response times for cross-team communication
-- Iron Bank & Borrowing contract owner `0x98d785185198EF02Db237471f034AC6020E3f55E`will manage repayment of debt plan, in line with the uncollateralized borrowing agreement between both parties. Propose immediate repayment
+- Iron Bank & Borrowing contract owner `0x98d785185198EF02Db237471f034AC6020E3f55E`will manage repayment of debt plan, in line with the uncollateralized borrowing agreement between both parties. Propose immediate repayment.
