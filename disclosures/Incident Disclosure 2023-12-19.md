@@ -1,7 +1,7 @@
 # Incident disclosure - 2023-12-19
 
 ## Summary
-Following a query on levels of outstanding borrows vs treasury-held debt it was discovered that a borrower contract authorized by the Iron Bank Multisig had established an uncollateralized borrow position of Fixed Forex assets with a market value to date worth $4,534,742
+Following a query on levels of outstanding borrows vs treasury-held debt it was discovered that a borrower contract authorized by the Iron Bank Multisig had established an uncollateralized borrow position of Fixed Forex assets with a market value (to date) worth $4,534,742
 
 The contract `0x6B419752c453D0B83bc1B465077043347cb3C576` was published 34 days ago and is permissioned to borrow Fixed Forex assets from Iron Bank for the purposes of farming liquidity positions on Curve and Convex protocols. The core assets can only be removed by Iron Bank `0x9d960dAe0639C95a0C822C9d7769d19d30A430Aa` and the operator multisig `0x98d785185198EF02Db237471f034AC6020E3f55E` can only claim profits
 
@@ -16,7 +16,7 @@ Fixed Forex assets (ibEUR, ibCHF, ibGBP, ibAUD, ibJPY & ibKRW) are designed to b
 - Iron Bank Multisig has the ability to permission contracts for uncollateralized borrowing, where Iron Bank considers the borrowing party credit worthy. Iron Bank has previously whitelisted Yearn Finance, Keep3r Network, Multichain, Alpha Homora and PleaserDAO. Conditions can be viewed at https://docs.ib.xyz/protocol-lending
 - Keep3r Network Treasury previously agreed two contracts permissioned to borrow Fixed Forex assets from Iron Bank 
 - ib_amm `0x0a0B06322825cb979678C722BA9932E0e4B5fd90` allows borrowing of any Fixed Forex asset upto pre-agreed borrowing limits with Iron Bank, allowing DAI to be swapped to Fixed Forex assets. Each asset valued at chainlink price quote at time of swap. DAI was retained by the Keep3r treasury for the purposes of farming USD based liquidity pools for yield thereby providing collateral value against any outstanding borrows
-- ib AMM `0x8338Aa899fB3168598D871Edc1FE2B4F0Ca6BBEF` allows borrowing of any Fixed Forex asset upto pre-agreed borrowing limits with Iron Bank, allowing MIM to be swapped to Fixed Forex assets. Each asset is valued at chainlink price quote at time of swap. MIM was retained by the Keep3r treasury for the purposes of farming USD based liquidity pools for yield thereby providing collateral value against any outstanding borrows
+- ibAMM `0x8338Aa899fB3168598D871Edc1FE2B4F0Ca6BBEF` allows borrowing of any Fixed Forex asset upto pre-agreed borrowing limits with Iron Bank, allowing MIM to be swapped to Fixed Forex assets. Each asset is valued at chainlink price quote at time of swap. MIM was retained by the Keep3r treasury for the purposes of farming USD based liquidity pools for yield thereby providing collateral value against any outstanding borrows
 - As a fallback, all other assets held by Keep3r treasury can be utilized to collateralize outstanding borrows held by Keep3r treasury. 
 - Details of current assets held can be viewed here; https://keep3r.network/treasury. 
 - Details of current outstanding borrows held by the ib_amm and ibAMM contracts can be viewed here; https://keep3r.network/debt
